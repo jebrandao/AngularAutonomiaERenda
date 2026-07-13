@@ -7,6 +7,7 @@ import { Produto } from '../produto/produto';
   templateUrl: './lista-produtos.html',
   styleUrl: './lista-produtos.css',
 })
+
 export class ListaProdutos {
   constructor() {
     effect(() => {
