@@ -1,5 +1,7 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, effect, inject } from '@angular/core';
 import { Produto } from '../produto/produto';
+import { ProdutosService } from '../produtos.service';
+
 
 @Component({
   selector: 'app-lista-produtos',
@@ -7,9 +9,12 @@ import { Produto } from '../produto/produto';
   templateUrl: './lista-produtos.html',
   styleUrl: './lista-produtos.css',
 })
-
 export class ListaProdutos {
-  constructor() {
+  constructor(private produtosService: ProdutosService) {
+    // carrega da API
+    this.carregarProdutos();
+
+    // effects continuam iguais
     effect(() => {
       console.log('Lista de produtos alterada:', this.produtos());
     });
@@ -25,10 +30,9 @@ export class ListaProdutos {
 
   // SIGNALS
 
-  produtos = signal([
-    { nome: 'Notebook', preco: 3800 },
-    { nome: 'Mouse', preco: 179 },
-  ]);
+  carregando = signal(true);
+
+  produtos = signal<{ nome: string; preco: number }[]>([]);
 
   produtoSelecionado = signal<string | null>(null);
 
@@ -62,5 +66,21 @@ export class ListaProdutos {
 
   adicionarAoCarrinho(produto: { nome: string; preco: number }) {
     this.carrinho.update((listaAtual) => [...listaAtual, produto]);
+  }
+
+  carregarProdutos() {
+    this.carregando.set(true);
+
+    this.produtosService.buscarProdutos().subscribe({
+      next: (dados) => {
+        const produtos = this.produtosService.transformarProdutos(dados);
+        this.produtos.set(produtos);
+        this.carregando.set(false);
+      },
+      error: (erro) => {
+        console.error('Erro ao carregar produtos:', erro);
+        this.carregando.set(false);
+      },
+    });
   }
 }
