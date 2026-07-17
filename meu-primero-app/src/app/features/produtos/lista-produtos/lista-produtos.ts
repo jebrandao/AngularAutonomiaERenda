@@ -1,8 +1,8 @@
 import { Component, signal, computed, effect, inject } from '@angular/core';
-import { ProdutosService } from '../produtos.service';
+import { ProdutosService } from '../../../core/services/produtos.service';
 import { Produto } from '../produto/produto';
 import { MatButtonModule } from '@angular/material/button';
-
+import { CarrinhoService } from '../../../core/services/carrinho.service';
 
 @Component({
   selector: 'app-lista-produtos',
@@ -11,7 +11,13 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './lista-produtos.css',
 })
 export class ListaProdutos {
-  
+
+  carrinhoService = inject(CarrinhoService);
+  produtoService = inject(ProdutosService);
+  quantidadeCarrinho = this.carrinhoService.quantidade;
+  totalCarrinho = this.carrinhoService.total;
+
+
   constructor() {
     // carrega da API
     this.carregarProdutos();
@@ -42,7 +48,6 @@ export class ListaProdutos {
 
   produtoSelecionado = signal<string | null>(null);
 
-  carrinho = signal<{ nome: string; preco: number }[]>([]);
 
   // COMPUTED
 
@@ -50,12 +55,6 @@ export class ListaProdutos {
 
   valorTotal = computed(() => {
     return this.produtos().reduce((total, item) => total + item.preco, 0);
-  });
-
-  quantidadeCarrinho = computed(() => this.carrinho().length);
-
-  totalCarrinho = computed(() => {
-    return this.carrinho().reduce((total, item) => total + item.preco, 0);
   });
 
   exibirProduto(nome: string) {
@@ -71,7 +70,7 @@ export class ListaProdutos {
   }
 
   adicionarAoCarrinho(produto: { nome: string; preco: number }) {
-    this.carrinho.update((listaAtual) => [...listaAtual, produto]);
+    this.carrinhoService.adicionar(produto);
   }
 
   carregarProdutos() {
