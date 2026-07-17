@@ -61,13 +61,5 @@
   <!-- Seção do Carrinho -->
   <section>
     <hr />
-    <h2>Carrinho:</h2>
-
-    @for (item of carrinhoService.itens(); track $index) {
-      <p>{{ item.nome }} - R$ {{ item.preco.toFixed(2) }}</p>
-    }
-
-    <h3>Itens no carrinho: {{ carrinhoService.quantidade() }}</h3>
-    <h3>Total do Carrinho: R$ {{ carrinhoService.total().toFixed(2) }}</h3>
   </section>
 </section>

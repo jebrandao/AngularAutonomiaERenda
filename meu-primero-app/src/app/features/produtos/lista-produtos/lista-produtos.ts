@@ -1,8 +1,10 @@
 import { Component, signal, computed, effect, inject } from '@angular/core';
-import { ProdutosService } from '../../../core/services/produtos.service';
-import { Produto } from '../produto/produto';
 import { MatButtonModule } from '@angular/material/button';
-import { CarrinhoService } from '../../../core/services/carrinho.service';
+
+import { ProdutosService } from '../../../core/services/produtos.service';
+import { CarrinhoFacade } from '../../../core/facades/carrinho.facade';
+import { ItemCarrinho } from '../../../core/models/item-carrinho';
+import { Produto } from '../produto/produto';
 
 @Component({
   selector: 'app-lista-produtos',
@@ -11,13 +13,6 @@ import { CarrinhoService } from '../../../core/services/carrinho.service';
   styleUrl: './lista-produtos.css',
 })
 export class ListaProdutos {
-
-  carrinhoService = inject(CarrinhoService);
-  produtoService = inject(ProdutosService);
-  quantidadeCarrinho = this.carrinhoService.quantidade;
-  totalCarrinho = this.carrinhoService.total;
-
-
   constructor() {
     // carrega da API
     this.carregarProdutos();
@@ -37,17 +32,17 @@ export class ListaProdutos {
   }
 
   private produtosService = inject(ProdutosService);
+  carrinhoFacade = inject(CarrinhoFacade);
+
+  quantidadeCarrinho = this.carrinhoFacade.quantidade;
+  totalCarrinho = this.carrinhoFacade.total;
 
   // SIGNALS
 
-  erro = signal<string | null>(null);
-
-  carregando = signal(true);
-
   produtos = signal<{ nome: string; preco: number }[]>([]);
-
   produtoSelecionado = signal<string | null>(null);
-
+  carregando = signal(true);
+  erro = signal<string | null>(null);
 
   // COMPUTED
 
@@ -56,6 +51,7 @@ export class ListaProdutos {
   valorTotal = computed(() => {
     return this.produtos().reduce((total, item) => total + item.preco, 0);
   });
+
 
   exibirProduto(nome: string) {
     this.produtoSelecionado.set(nome);
@@ -69,8 +65,8 @@ export class ListaProdutos {
     this.produtos.set([{ nome: 'Produto novo', preco: 999 }]);
   }
 
-  adicionarAoCarrinho(produto: { nome: string; preco: number }) {
-    this.carrinhoService.adicionar(produto);
+  adicionarAoCarrinho(produto: ItemCarrinho) {
+    this.carrinhoFacade.adicionarProduto(produto);
   }
 
   carregarProdutos() {
