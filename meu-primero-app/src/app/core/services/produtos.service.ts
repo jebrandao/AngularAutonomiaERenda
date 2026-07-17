@@ -1,30 +1,34 @@
 import { Injectable, inject } from '@angular/core';
-  import { HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
-  type ProdutoApi = {
-    title: string;
-    price: number;
-  };
+import { ProdutoLoja } from '../models/produto-loja';
 
-  type Produto = {
-    nome: string;
-    preco: number;
-  };
+type ProdutoApi = {
+  title: string;
+  price: number;
+};
 
-  @Injectable({ providedIn: 'root' })
-  export class ProdutosService {
-    private http = inject(HttpClient);
+// type Produto = {
+//   nome: string;
+//   preco: number;
+// };
 
-    private API = 'https://fakestoreapi.com/products';
+@Injectable({ providedIn: 'root' })
 
-    buscarProdutos() {
-      return this.http.get<ProdutoApi[]>(this.API);
-    }
+export class ProdutosService {
+  private http = inject(HttpClient);
 
-    transformarProdutos(dados: ProdutoApi[]): Produto[] {
-      return dados.map((p) => ({
-        nome: p.title,
-        preco: p.price,
-      }));
-    }
+  private readonly API = 'https://fakestoreapi.com/products';
+  // private readonly API = 'https://fakestoreapi.com/products-erro';
+
+  buscarProdutos() {
+    return this.http.get<ProdutoApi[]>(this.API);
   }
+
+  transformarProdutos(dados: ProdutoApi[]): ProdutoLoja[] {
+    return dados.map((produto) => ({
+      nome: produto.title,
+      preco: produto.price,
+    }));
+  }
+}
